@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<title>Resultat – CG Touren 2026</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+style.css
+</head>
+
+<body>
+
+<header>
+  <h1>Resultat & Ställning</h1>
+  <nav>
+    index.htmlHem</a>
+    regler.htmlRegler</a>
+    resultat.htmlResultat</a>
+    prispott.htmlPrispott</a>
+  </nav>
+</header>
+
+<section class="card">
+  <h2>Fyll i placeringar (1–8)</h2>
+  <div id="inputs"></div>
+  <button onclick="calc()">Beräkna poäng</button>
+</section>
+
+<section class="card">
+  <h2>Ställning</h2>
+  <table id="table"></table>
+</section>
+
+<script>
+const players = ["Spelare 1","Spelare 2","Spelare 3","Spelare 4","Spelare 5","Spelare 6","Spelare 7","Spelare 8"];
+const events = 11;
+const base = [15,12,10,8,6,5,4,3];
+
+let html="";
+for (let i=1;i<=events;i++){
+  html += `<h3>Deltävling ${i}</h3>`;
+  players.forEach(p=> html += `${p}: <input id="ev${i}_${p}" class="resbox"><br>`);
+}
+document.querySelector("#inputs").innerHTML = html;
+
+function calc(){
+  let totals = {}; players.forEach(p=> totals[p]=0);
+  
+  for(let i=1;i<=events;i++){
+    let map={};
+    players.forEach(p=>{
+      let v = Number(document.querySelector(`#ev${i}_${p}`).value);
+      if(v) map[p]=v;
+    });
+
+    let pos = {};
+    for(let p in map){
+      if(!pos[map[p]]) pos[map[p]]=[];
+      pos[map[p]].push(p);
+    }
+
+    let sorted = Object.keys(pos).map(Number).sort((a,b)=>a-b);
+    sorted.forEach(pl=>{
+      let tied = pos[pl];
+      let k = tied.length;
+      let sum=0; 
+      for(let r=pl;r<pl+k;r++) sum += base[r-1]||0;
+      let avg = Math.round(sum/k);
+      tied.forEach(p=> totals[p] += avg);
+    });
+  }
+
+  let out = "<tr><th>#</th><th>Spelare</th><th>Poäng</th></tr>";
+  let sorted = Object.entries(totals).sort((a,b)=>b[1]-a[1]);
+  sorted.forEach((row,i)=> out += `<tr><td>${i+1}</td><td>${row[0]}</td><td>${row[1]}</td></tr>`);
+  document.querySelector("#table").innerHTML = out;
+}
+</script>
+
+</body>
+</html>
